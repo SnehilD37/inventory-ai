@@ -81,7 +81,7 @@ Inventory AI Running
 
 To allow other devices (like a phone, tablet, or ESP32-CAM) on the same Wi-Fi network to upload images:
 
-1. Find your laptop's local IP address by running `ipconfig` (Windows) or `ifconfig` (Mac/Linux). Look for the IPv4 Address (e.g. `10.160.155.214`).
+1. Find your laptop's local IP address by running `ipconfig` (Windows) or `ifconfig` (Mac/Linux). Look for the IPv4 Address.
 2. Make client HTTP POST requests directly to:
    ```text
    http://<YOUR_LAPTOP_IP>:5000/predict

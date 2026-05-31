@@ -100,7 +100,8 @@ def predict():
         # Run YOLOv8 inference
         results = model(img)
         
-        detections = []
+        # Aggregate predictions to keep only the one with the highest confidence per component class
+        best_detections = {}
         for result in results:
             boxes = result.boxes
             for box in boxes:
@@ -111,14 +112,21 @@ def predict():
                 
                 confidence = float(box.conf[0])
                 
-                detections.append({
-                    "component": class_name,
-                    "confidence": round(confidence, 2)
-                })
-                
-                # Log detection to database
-                log_detection(class_name, confidence)
-                
+                if class_name not in best_detections or confidence > best_detections[class_name]:
+                    best_detections[class_name] = confidence
+                    
+        detections = []
+        for class_name, confidence in best_detections.items():
+            detections.append({
+                "component": class_name,
+                "confidence": round(confidence, 2)
+            })
+            # Log the highest confidence detection to database
+            log_detection(class_name, confidence)
+            
+        # Sort by confidence descending
+        detections.sort(key=lambda x: x["confidence"], reverse=True)
+        
         # Return response
         return jsonify(detections)
         
