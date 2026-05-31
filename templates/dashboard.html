@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory AI Running - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #111827;
+            --bg-card: #1f2937;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --accent-purple: #8b5cf6;
+            --accent-emerald: #10b981;
+            --accent-rose: #f43f5e;
+            --border-color: #374151;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+        }
+
+        .logo-group h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a78bfa, #8b5cf6, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-group p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            color: var(--accent-emerald);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-emerald);
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            box-shadow: 0 0 8px var(--accent-emerald);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.75rem;
+        }
+
+        .card-title span {
+            margin-right: 0.5rem;
+        }
+
+        .dropzone-container {
+            border: 2px dashed var(--border-color);
+            border-radius: 0.75rem;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background-color 0.2s;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 250px;
+        }
+
+        .dropzone-container:hover, .dropzone-container.dragover {
+            border-color: var(--accent-purple);
+            background-color: rgba(139, 92, 246, 0.02);
+        }
+
+        .dropzone-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .dropzone-text {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .dropzone-subtext {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        #preview-img {
+            max-width: 100%;
+            max-height: 220px;
+            border-radius: 0.5rem;
+            display: none;
+            object-fit: contain;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-family: inherit;
+            transition: filter 0.2s, transform 0.1s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            filter: none;
+        }
+
+        .result-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: space-between;
+        }
+
+        .predictions-list {
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+
+        .prediction-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .pred-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .pred-conf-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .pred-progress {
+            width: 80px;
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .pred-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-emerald));
+            border-radius: 3px;
+        }
+
+        .pred-conf {
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: var(--accent-emerald);
+            font-weight: 600;
+        }
+
+        .raw-json {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            color: #34d399;
+            overflow-x: auto;
+            max-height: 150px;
+        }
+
+        .logs-section {
+            margin-top: 2rem;
+        }
+
+        .logs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .logs-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .search-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            width: 250px;
+            outline: none;
+        }
+
+        .search-box:focus {
+            border-color: var(--accent-purple);
+        }
+
+        .table-container {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background-color: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-size: 0.95rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .conf-badge {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--accent-emerald);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+            font-family: monospace;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+
+        .conf-badge.low {
+            background-color: rgba(244, 63, 94, 0.1);
+            color: var(--accent-rose);
+        }
+
+        .conf-badge.mid {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .timestamp-cell {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .empty-logs {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .stat-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-val {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: #1f2937;
+            border-left: 4px solid var(--accent-emerald);
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transform: translateY(150%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-group">
+                <h1>Inventory AI Running</h1>
+                <p>YOLOv8 Local Server & Dashboard</p>
+            </div>
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                Server Active (Port 5000)
+            </div>
+        </header>
+
+        <!-- Stats Bar -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Total Scans</span>
+                <span class="stat-val" id="stat-total">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Unique Components</span>
+                <span class="stat-val" id="stat-unique">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Avg. Confidence</span>
+                <span class="stat-val" id="stat-confidence">0.0%</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Last Identified</span>
+                <span class="stat-val" id="stat-last" style="font-size: 1.1rem; line-height: 2.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">N/A</span>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Testing Dropzone Card -->
+            <div class="card">
+                <div class="card-title">
+                    <span>⚡</span> Run Local Prediction
+                </div>
+                <div class="dropzone-container" id="dropzone">
+                    <div class="dropzone-content" id="dropzone-content">
+                        <div class="dropzone-icon">📷</div>
+                        <div class="dropzone-text">Drag and drop component image, or click to browse</div>
+                        <div class="dropzone-subtext">Supports JPEG, PNG</div>
+                    </div>
+                    <img id="preview-img" alt="Preview">
+                    <input type="file" id="file-input" accept="image/*">
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-secondary" id="btn-clear" style="display: none;">Reset</button>
+                    <button class="btn" id="btn-submit" style="display: none;">Analyze Component</button>
+                </div>
+            </div>
+
+            <!-- Prediction Results Card -->
+            <div class="card">
+                <div class="card-title">
+                    <span>🔍</span> Prediction Response
+                </div>
+                <div class="result-container">
+                    <div class="predictions-list" id="predictions-wrapper">
+                        <div style="color: var(--text-secondary); text-align: center; padding-top: 3rem;">
+                            Upload an image to see detection results
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; font-weight: 500;">Raw JSON Response:</div>
+                        <pre class="raw-json" id="raw-json-output">[]</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs Section -->
+        <div class="logs-section">
+            <div class="logs-header">
+                <h2>Activity & Inventory Log</h2>
+                <div class="logs-actions">
+                    <input type="text" class="search-box" id="search-input" placeholder="Search components...">
+                    <button class="btn btn-secondary" id="btn-clear-logs" style="margin: 0; padding: 0.5rem 1rem; width: auto; font-size: 0.9rem;">Clear Logs</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table id="logs-table">
+                    <thead>
+                        <tr>
+                            <th>Component Name</th>
+                            <th>Confidence</th>
+                            <th>Date & Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logs-body">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+                <div class="empty-logs" id="empty-logs-msg" style="display: none;">
+                    No inventory logging entries found.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast" id="toast">
+        <span id="toast-message">Success!</span>
+    </div>
+
+    <script>
+        // DOM Elements
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('file-input');
+        const previewImg = document.getElementById('preview-img');
+        const dropzoneContent = document.getElementById('dropzone-content');
+        const btnSubmit = document.getElementById('btn-submit');
+        const btnClear = document.getElementById('btn-clear');
+        const predictionsWrapper = document.getElementById('predictions-wrapper');
+        const rawJsonOutput = document.getElementById('raw-json-output');
+        const logsBody = document.getElementById('logs-body');
+        const emptyLogsMsg = document.getElementById('empty-logs-msg');
+        const btnClearLogs = document.getElementById('btn-clear-logs');
+        const searchInput = document.getElementById('search-input');
+
+        // Stats elements
+        const statTotal = document.getElementById('stat-total');
+        const statUnique = document.getElementById('stat-unique');
+        const statConfidence = document.getElementById('stat-confidence');
+        const statLast = document.getElementById('stat-last');
+
+        let selectedFile = null;
+        let logsData = [];
+
+        // Load logs on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchLogs();
+        });
+
+        // Trigger file input click
+        dropzone.addEventListener('click', () => {
+            if (!selectedFile) fileInput.click();
+        });
+
+        // Drag & drop logic
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+        });
+
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('dragover');
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showToast('Please select a valid image file.', 'var(--accent-rose)');
+                return;
+            }
+            selectedFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+                dropzoneContent.style.display = 'none';
+                btnSubmit.style.display = 'block';
+                btnClear.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Reset dropzone
+        btnClear.addEventListener('click', (e) => {
+            e.stopPropagation();
+            resetDropzone();
+        });
+
+        function resetDropzone() {
+            selectedFile = null;
+            fileInput.value = '';
+            previewImg.src = '';
+            previewImg.style.display = 'none';
+            dropzoneContent.style.display = 'flex';
+            btnSubmit.style.display = 'none';
+            btnClear.style.display = 'none';
+            predictionsWrapper.innerHTML = `
+                <div style="color: var(--text-secondary); text-align: center; padding-top: 3rem;">
+                    Upload an image to see detection results
+                </div>
+            `;
+            rawJsonOutput.textContent = '[]';
+        }
+
+        // Submit to /predict
+        btnSubmit.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = 'Processing Image...';
+
+            const formData = new FormData();
+            formData.append('image', selectedFile);
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server returned status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayResults(data);
+                showToast('Component successfully identified!');
+                fetchLogs(); // refresh log table
+            } catch (err) {
+                console.error(err);
+                showToast('Error: ' + err.message, 'var(--accent-rose)');
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = 'Analyze Component';
+            }
+        });
+
+        function displayResults(data) {
+            rawJsonOutput.textContent = JSON.stringify(data, null, 2);
+            predictionsWrapper.innerHTML = '';
+
+            if (data.length === 0) {
+                predictionsWrapper.innerHTML = `
+                    <div style="color: var(--text-secondary); text-align: center; padding-top: 3rem;">
+                        No components detected.
+                    </div>
+                `;
+                return;
+            }
+
+            data.forEach(item => {
+                const confPercent = Math.round(item.confidence * 100);
+                const itemEl = document.createElement('div');
+                itemEl.className = 'prediction-item';
+                itemEl.innerHTML = `
+                    <span class="pred-name">${item.component}</span>
+                    <div class="pred-conf-container">
+                        <div class="pred-progress">
+                            <div class="pred-progress-fill" style="width: ${confPercent}%"></div>
+                        </div>
+                        <span class="pred-conf">${confPercent}%</span>
+                    </div>
+                `;
+                predictionsWrapper.appendChild(itemEl);
+            });
+        }
+
+        // Fetch logs from server
+        async function fetchLogs() {
+            try {
+                const response = await fetch('/logs');
+                if (response.ok) {
+                    logsData = await response.json();
+                    renderLogsTable(logsData);
+                    calculateStats(logsData);
+                }
+            } catch (err) {
+                console.error('Error fetching logs:', err);
+            }
+        }
+
+        function renderLogsTable(logs) {
+            logsBody.innerHTML = '';
+            if (logs.length === 0) {
+                emptyLogsMsg.style.display = 'block';
+                return;
+            }
+            emptyLogsMsg.style.display = 'none';
+
+            logs.forEach(log => {
+                const row = document.createElement('tr');
+                const confPercent = (log.confidence * 100).toFixed(1);
+                
+                let badgeClass = '';
+                if (log.confidence < 0.6) badgeClass = 'low';
+                else if (log.confidence < 0.8) badgeClass = 'mid';
+
+                row.innerHTML = `
+                    <td><strong>${log.component}</strong></td>
+                    <td><span class="conf-badge ${badgeClass}">${confPercent}%</span></td>
+                    <td class="timestamp-cell">${log.timestamp}</td>
+                `;
+                logsBody.appendChild(row);
+            });
+        }
+
+        // Stats calculation
+        function calculateStats(logs) {
+            if (logs.length === 0) {
+                statTotal.textContent = '0';
+                statUnique.textContent = '0';
+                statConfidence.textContent = '0.0%';
+                statLast.textContent = 'N/A';
+                return;
+            }
+
+            statTotal.textContent = logs.length;
+
+            const uniqueComps = new Set(logs.map(l => l.component));
+            statUnique.textContent = uniqueComps.size;
+
+            const totalConf = logs.reduce((sum, l) => sum + l.confidence, 0);
+            statConfidence.textContent = ((totalConf / logs.length) * 100).toFixed(1) + '%';
+
+            statLast.textContent = logs[0].component; // logs are returned newest first
+        }
+
+        // Clear logs logic
+        btnClearLogs.addEventListener('click', async () => {
+            if (!confirm('Are you sure you want to clear all inventory logs? This cannot be undone.')) {
+                return;
+            }
+            try {
+                const response = await fetch('/clear_logs', { method: 'POST' });
+                if (response.ok) {
+                    showToast('All logs cleared!');
+                    fetchLogs();
+                } else {
+                    showToast('Failed to clear logs.', 'var(--accent-rose)');
+                }
+            } catch (err) {
+                showToast('Error: ' + err.message, 'var(--accent-rose)');
+            }
+        });
+
+        // Search filter logic
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = logsData.filter(log => 
+                log.component.toLowerCase().includes(term) ||
+                log.timestamp.includes(term)
+            );
+            renderLogsTable(filtered);
+        });
+
+        // Toast message display
+        function showToast(message, borderLeftColor = 'var(--accent-emerald)') {
+            const toast = document.getElementById('toast');
+            const msgSpan = document.getElementById('toast-message');
+            msgSpan.textContent = message;
+            toast.style.borderLeftColor = borderLeftColor;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

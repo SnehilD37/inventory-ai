@@ -1,0 +1,87 @@
+[
+  {
+    "component": "Arduino-Uno",
+    "confidence": 0.26,
+    "timestamp": "2026-05-31 23:45"
+  },
+  {
+    "component": "Arduino-Mega",
+    "confidence": 0.82,
+    "timestamp": "2026-05-31 23:45"
+  },
+  {
+    "component": "Arduino-Uno",
+    "confidence": 0.27,
+    "timestamp": "2026-05-31 23:42"
+  },
+  {
+    "component": "Arduino-Uno",
+    "confidence": 0.43,
+    "timestamp": "2026-05-31 23:42"
+  },
+  {
+    "component": "Arduino-Uno",
+    "confidence": 0.75,
+    "timestamp": "2026-05-31 23:42"
+  },
+  {
+    "component": "Arduino-Uno",
+    "confidence": 0.34,
+    "timestamp": "2026-05-31 23:36"
+  },
+  {
+    "component": "OLED-Display",
+    "confidence": 0.52,
+    "timestamp": "2026-05-31 23:36"
+  },
+  {
+    "component": "OLED-Display",
+    "confidence": 0.55,
+    "timestamp": "2026-05-31 23:36"
+  },
+  {
+    "component": "OLED-Display",
+    "confidence": 0.7,
+    "timestamp": "2026-05-31 23:36"
+  },
+  {
+    "component": "Arduino-Mega",
+    "confidence": 0.34,
+    "timestamp": "2026-05-31 23:35"
+  },
+  {
+    "component": "Arduino-Uno",
+    "confidence": 0.36,
+    "timestamp": "2026-05-31 23:35"
+  },
+  {
+    "component": "cell-phone",
+    "confidence": 0.25,
+    "timestamp": "2026-05-31 22:57"
+  },
+  {
+    "component": "person",
+    "confidence": 0.81,
+    "timestamp": "2026-05-31 22:57"
+  },
+  {
+    "component": "cell-phone",
+    "confidence": 0.49,
+    "timestamp": "2026-05-31 22:46"
+  },
+  {
+    "component": "person",
+    "confidence": 0.64,
+    "timestamp": "2026-05-31 22:46"
+  },
+  {
+    "component": "bed",
+    "confidence": 0.57,
+    "timestamp": "2026-05-31 22:39"
+  },
+  {
+    "component": "bed",
+    "confidence": 0.43,
+    "timestamp": "2026-05-31 22:38"
+  }
+]
